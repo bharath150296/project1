@@ -2,31 +2,14 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: 3.12
-      nodejs: 18
-
     commands:
-      - echo "Installing dependencies"
-      - mkdir -p package
-      - pip install -r requirements.txt -t package/
+      - pip install -r requirements.txt -t .
 
   build:
     commands:
-      - echo "Packaging Lambda"
-      - cp handler.py package/
-      - cd package
-      - zip -r ../lambda.zip .
-      - cd ..
-
-  post_build:
-    commands:
-      - echo "Deploying with CDK"
-      - npm install -g aws-cdk
-      - pip install -r cdk/requirements.txt
-      - cd cdk
-      - cdk deploy --require-approval never
-
+      - zip -r lambda.zip .
+      
 artifacts:
   files:
     - lambda.zip
+    - template.yaml

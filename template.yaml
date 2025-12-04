@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda deployment from CodePipeline
+
+Parameters:
+  LambdaRoleArn:
+    Type: String
+    Description: ARN of Lambda execution role
+
+Resources:
+
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: project1-lambda
+      Handler: handler.lambda_handler
+      Runtime: python3.12
+      Role: !Ref LambdaRoleArn
+      Code:
+        ZipFile: |
+          def lambda_handler(event, context):
+              return {
+                  "statusCode": 200,
+                  "body": "Hello from Lambda deployed via pipeline!"
+              }
+      Timeout: 10
