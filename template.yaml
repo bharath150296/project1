@@ -16,10 +16,9 @@ Resources:
       Runtime: python3.12
       Role: !Ref LambdaRoleArn
       Code:
-        ZipFile: |
-          def lambda_handler(event, context):
-              return {
-                  "statusCode": 200,
-                  "body": "Hello from Lambda deployed via pipeline!"
-              }
+        S3Bucket: !Ref LambdaArtifactBucket
+        S3Key: lambda.zip
       Timeout: 10
+
+  LambdaArtifactBucket:
+    Type: AWS::S3::Bucket
