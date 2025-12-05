@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Lambda function stack (deployed by pipeline)
+
+Parameters:
+  LambdaS3Bucket:
+    Type: String
+  LambdaS3Key:
+    Type: String
+  LambdaRoleArn:
+    Type: String
+    Description: IAM role ARN for Lambda (passed from pipeline stack)
+
+Resources:
+  Project1Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: Project1Lambda
+      Handler: handler.lambda_handler
+      Runtime: python3.12
+      Role: !Ref LambdaRoleArn
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: !Ref LambdaS3Key
+      Timeout: 10
+
+Outputs:
+  LambdaFunctionName:
+    Value: !Ref Project1Lambda
