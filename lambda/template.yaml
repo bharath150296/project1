@@ -61,5 +61,5 @@ Resources:
       Timeout: 10
 
       Code:
-        S3Bucket: YOUR-S3-BUCKET-NAME
+        S3Bucket: lambda-s3-7740
         S3Key: function.zip
