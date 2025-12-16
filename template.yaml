@@ -77,4 +77,9 @@ Resources:
           Properties:
             Path: /app
             Method: get
+        ApiTrigger:
+          Type: Api
+          Properties:
+            Path: /app
+            Method: post
 
