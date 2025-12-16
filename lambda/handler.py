@@ -1,9 +1,17 @@
 import boto3
 import uuid
 import json
+import os
+
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('UserMessages')
+TABLE_NAME = os.environ['TABLE_NAME']
+SNS_TOPIC_ARN = os.environ['SNS_TOPIC_ARN']
+
+sns = boto3.client('sns')
+
+table = dynamodb.Table(TABLE_NAME)
+
 def lambda_handler(event, context):
     user_id = str(uuid.uuid4())
     message = event.get('message', 'Hello, World!')
@@ -13,6 +21,10 @@ def lambda_handler(event, context):
             'Message': message
         }
     )
+    sns.publish(
+        TopicArn=SNS_TOPIC_ARN,
+        Message='Lambda executed successfully'
+        )
     return {
         'statusCode': 200,
         'body': json.dumps({

@@ -1,31 +1,36 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Beginner AWS Stack - IAM Role, Lambda (from S3), DynamoDB
+Transform: AWS::Serverless-2016-10-31
+Description: Complete AWS setup using YAML only (Lambda, IAM, DynamoDB, SNS, S3)
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Timeout: 10
 
 Resources:
 
-  ############################
-  # DynamoDB Table
-  ############################
-  UserTable:
+  AppBucket:
+    Type: AWS::S3::Bucket
+
+  AppTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: UserMessages
+      TableName: project1-table
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - AttributeName: userId
+        - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: userId
+        - AttributeName: id
           KeyType: HASH
 
+  AppSNSTopic:
+    Type: AWS::SNS::Topic
 
-  ############################
-  # IAM Role for Lambda
-  ############################
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: lambda-dynamo-role
+      RoleName: project1-lambda-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -33,33 +38,36 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
-
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
       Policies:
-        - PolicyName: DynamoDBPutItemPolicy
+        - PolicyName: LambdaPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
                   - dynamodb:PutItem
-                Resource: !GetAtt UserTable.Arn
+                Resource: !GetAtt AppTable.Arn
 
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref AppSNSTopic
 
-  ############################
-  # Lambda Function
-  ############################
-  SaveUserLambda:
-    Type: AWS::Lambda::Function
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  AppLambda:
+    Type: AWS::Serverless::Function
     Properties:
-      FunctionName: saveUserLambda
-      Runtime: python3.10
-      Handler: app.lambda_handler
+      FunctionName: project1-lambda
+      CodeUri: lambda/
+      Handler: handler.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
-      Timeout: 10
-
-      Code:
-        S3Bucket: lambda-s3-7740
-        S3Key: function.zip
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref AppTable
+          SNS_TOPIC_ARN: !Ref AppSNSTopic
