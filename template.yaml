@@ -72,12 +72,12 @@ Resources:
           TABLE_NAME: !Ref AppTable
           SNS_TOPIC_ARN: !Ref AppSNSTopic
       Events:
-        ApiTrigger:
+        ApiTriggerGet:
           Type: Api
           Properties:
             Path: /app
             Method: get
-        ApiTrigger:
+        ApiTriggerPost:
           Type: Api
           Properties:
             Path: /app
